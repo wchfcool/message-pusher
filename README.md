@@ -1,138 +1,658 @@
+<p align="center">
+  <a href="https://github.com/songquanpeng/message-pusher"><img src="https://raw.githubusercontent.com/songquanpeng/message-pusher/master/web/public/logo.png" width="150" height="150" alt="message-pusher logo"></a>
+</p>
+
+<div align="center">
+
 # 消息推送服务
+
+_✨ 搭建专属于你的消息推送服务，支持多种消息推送方式，支持 Markdown，仅单可执行文件，开箱即用✨_
+
+</div>
+
+<p align="center">
+  <a href="https://raw.githubusercontent.com/songquanpeng/message-pusher/main/LICENSE">
+    <img src="https://img.shields.io/github/license/songquanpeng/message-pusher?color=brightgreen" alt="license">
+  </a>
+  <a href="https://github.com/songquanpeng/message-pusher/releases/latest">
+    <img src="https://img.shields.io/github/v/release/songquanpeng/message-pusher?color=brightgreen&include_prereleases" alt="release">
+  </a>
+  <a href="https://hub.docker.com/repository/docker/justsong/message-pusher">
+    <img src="https://img.shields.io/docker/pulls/justsong/message-pusher?color=brightgreen" alt="docker pull">
+  </a>
+  <a href="https://github.com/songquanpeng/message-pusher/releases/latest">
+    <img src="https://img.shields.io/github/downloads/songquanpeng/message-pusher/total?color=brightgreen&include_prereleases" alt="release">
+  </a>
+  <a href="https://goreportcard.com/report/github.com/songquanpeng/message-pusher">
+    <img src="https://goreportcard.com/badge/github.com/songquanpeng/message-pusher" alt="GoReportCard">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/songquanpeng/message-pusher/releases">程序下载</a>
+  ·
+  <a href="#部署">部署教程</a>
+  ·
+  <a href="#用法">使用教程</a>
+  ·
+  <a href="https://github.com/songquanpeng/message-pusher/issues">意见反馈</a>
+  ·
+  <a href="https://message-pusher.onrender.com/">在线演示</a>
+</p>
+
+> **Note**：官方部署站 https://msgpusher.com 现已上线，当前开放注册，欢迎使用。如果收到积极反馈未来可以考虑换用延迟更低的服务器。
+
+> **Warning**：从 `v0.3` 版本升级到 `v0.4` 版本需要手动迁移数据库，具体方法见[迁移数据库](#迁移数据库)。
+
 ## 描述
-1. 多种消息推送方式：
-    + 使用微信公众号测试号推送，
-    + 使用微信企业号推送，
-    + 使用邮箱进行推送，
-    + 使用专门的桌面客户端进行推送，消息直达你的电脑，需要额外安装一个非常小的客户端，[详见此处](./client/README.md)。
-2. 支持 Markdown。
-3. 支持部署在 Heroku 上，无需自己的服务器，[详见此处](#在-Heroku-上的搭建步骤)。
+1. **多种消息推送方式**：
+   + 邮件消息，
+   + 微信测试号，
+   + QQ，
+   + 企业微信应用号，
+   + 企业微信群机器人
+   + 飞书自建应用
+   + 飞书群机器人，
+   + 钉钉群机器人，
+   + Bark App,
+   + WebSocket 客户端（[官方客户端](https://github.com/songquanpeng/personal-assistant)，[接入文档](./docs/API.md#websocket-客户端)），
+   + Telegram 机器人，
+   + Discord 群机器人，
+   + 腾讯云自定义告警：免费的短信提醒，
+   + **群组消息**：可以将多个推送通道组合成一个群组，然后向群组发送消息，可以实现一次性推送到多个渠道的功能，
+   + **自定义消息**：可以自定义消息请求 URL 和请求体格式，实现与其他服务的对接，支持[众多第三方服务](https://iamazing.cn/page/message-pusher-common-custom-templates)。
+2. 支持**自定义 Webhook，反向适配各种调用平台**，你可以接入各种已有的系统，而无需修改其代码。
+3. 支持在 Web 端编辑 & 管理发送的消息，新消息发送后 Web 端**即时刷新**。
+4. 支持**异步**消息发送。
+5. 支持用户管理，支持多种用户登录注册方式：
+   + 邮箱登录注册以及通过邮箱进行密码重置。
+   + [GitHub 开放授权](https://github.com/settings/applications/new)。
+   + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
+6. 支持 Markdown。
+7. 支持 Cloudflare Turnstile 用户校验。
+8. 支持在线发布公告，设置关于界面以及页脚。
+9. API **兼容**其他消息推送服务，例如 [Server 酱](https://sct.ftqq.com/)。
 
-## 用途举例
+## 用途
 1. [整合进自己的博客系统，每当有人登录时发微信消息提醒](https://github.com/songquanpeng/blog/blob/486d63e96ef7906a6c767653a20ec2d3278e9a4a/routes/user.js#L27)。
-2. 在进行深度学习模型训练时，在每个 epoch 结束后将关键数据发送到微信以方便及时监控。
-3. 在各种脚本运行结束后发消息提醒，例如[监控 Github Star 数量的脚本](https://github.com/songquanpeng/scripts/blob/main/star_watcher.py)。
+2. 在进行深度学习模型训练时，在每个 epoch 结束后[将关键数据发送到微信](https://github.com/songquanpeng/pytorch-template/blob/b2ba113659056080d3009b3014a67e977e2851bf/solver/solver.py#L223)以方便及时监控。
+3. 在各种脚本运行结束后发消息提醒，例如[监控 GitHub Star 数量的脚本](https://github.com/songquanpeng/scripts/blob/main/star_watcher.py)，又例如[自动健康填报的脚本](https://github.com/songquanpeng/daily-report)，用来通知运行结果。
+4. 为[其他系统](https://github.com/songquanpeng/personal-assistant#个人助理应用)提供消息推送功能。
 
-## 在自己的服务器上的部署步骤
-### 域名设置
-先去你的云服务提供商那里添加一个子域名，解析到你的目标服务器。
+## 部署
+### 通过 Docker 部署
+部署：`docker run -d --restart always --name message-pusher -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/message-pusher:/data justsong/message-pusher`
 
-### 服务器端配置
-1. 配置 Node.js 环境，推荐使用 [nvm](https://github.com/nvm-sh/nvm)。
-2. 下载代码：`git clone https://github.com/songquanpeng/message-pusher.git`，或者 `git clone https://gitee.com/songquanpeng/message-pusher`。
-3. 修改根目录下的 config.js 文件：
-    + （可选）可以修改监听的端口
-    + （可选）配置是否选择开放注册
-    + （必选）修改 href 字段，如 `https://pusher.yourdomain.com/`，注意后面要加 /，如果不修改此项，推送消息的详情页面将无法打开。
-4. 安装依赖：`npm i`。
-5. 安装 pm2：`npm i -g pm2`。
-6. 使用 pm2 启动服务：`pm2 start ./app.js --name message-pusher`。
-7. 使用 Nginx 反代我们的 Node.js 服务，默认端口 3000（你可以在 config.js 中进行修改）。
-    1. 修改应用根目录下的 `nginx.conf` 中的域名以及端口号，并创建软链接：`sudo ln -s /path/to/nginx.conf /etc/nginx/sites-enabled/message-pusher.conf` ，**注意修改这里的 /path/to/nginx.conf，且必须是绝对路径**，当然如果不想创建软链接的话也可以直接将配置文件拷贝过去：`sudo mv ./nginx.conf /etc/nginx/sites-enabled/message-pusher.conf`。
-    2. 之后使用 [certbot](https://certbot.eff.org/lets-encrypt/ubuntuxenial-nginx) 申请证书：`sudo certbot --nginx`。
-    3. 重启 Nginx 服务：`sudo service nginx restart`。
-8. 默认用户名密码为：`admin` 和 `123456`，且默认禁止新用户注册，如需修改，请编辑 `config.js`。
+如果无法拉去，请将 `justsong/message-pusher` 替换为 `ghcr.io/songquanpeng/message-pusher`。
 
-### 微信测试号配置
-1. 首先前往[此页面](https://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index)拿到 APP_ID 以及 APP_SECRET。
-2. 使用微信扫描下方的测试号二维码，拿到你的 OPEN_ID。
-3. 新增模板消息模板，模板标题随意，模板内容填 `{{text.DATA}}`，提交后可以拿到 TEMPLATE_ID。
-4. 填写接口配置信息，URL 填 `https://你的域名/前缀/verify`，TOKEN 随意，先不要点击验证。（前缀默认和用户名相同）
-5. 现在访问 `https://你的域名/`，默认用户为 admin，默认密码为 123456，登录后根据系统提示完成配置，之后点击提交按钮。
-6. 之后回到微信公众平台测试号的配置页面，点击验证。
+更新：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
-### 微信企业号配置
-1. 在该[页面](https://work.weixin.qq.com/)注册微信企业号（不需要企业资质）。
-2. 在该[页面](https://work.weixin.qq.com/wework_admin/frame#profile)的最下方找到企业 ID。
-3. 在该[页面](https://work.weixin.qq.com/wework_admin/frame#profile/wxPlugin)找到二维码，微信扫码关注。
-4. 在该[页面](https://work.weixin.qq.com/wework_admin/frame#apps)创建一个应用，之后找到应用的 AgentId 和 Secret。
-5. 在该[页面](https://work.weixin.qq.com/wework_admin/frame#contacts)找到你的个人账号（一般为你的姓名拼写）。
+开放的端口号为 3000，之后用 Nginx 配置域名，反代以及 SSL 证书即可，具体参考[详细部署教程](https://iamazing.cn/page/how-to-deploy-a-website)。
 
-### 验证是否配置成功
-访问 `https://你的域名/前缀/Hi`，如果你的微信能够收到一条内容为 Hi 的模板消息，则配置成功。
+数据将会保存在宿主机的 `/home/ubuntu/data/message-pusher` 目录（只有一个 SQLite 数据库文件），请确保该目录存在且具有写入权限，或者更改为合适的目录。
 
-如果出现问题，请务必仔细检查所填信息是否正确。
+Nginx 的参考配置：
+```
+server{
+   server_name msgpusher.com;  # 请根据实际情况修改你的域名
+   
+   location / {
+          client_max_body_size  64m;
+          proxy_http_version 1.1;
+          proxy_pass http://localhost:3000;  # 请根据实际情况修改你的端口
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-For $remote_addr;
+          proxy_cache_bypass $http_upgrade;
+          proxy_set_header Accept-Encoding gzip;
+   }
+}
+```
 
-如果出现 `无效的 access token` 的报错，说明你设置了 ACCESS_TOKEN 但是忘记在调用时传递该值或者传递的值是错的。
-
-
-## 在 Heroku 上的搭建步骤
-在此之前，请先读一下“在自己的服务器上的部署步骤”这一节。
-由于 Heroku 的限制，当 30 分钟内没有请求的话就会被冻结，之后再次启动时数据就丢了，因此这里我们采用配置环境变量的方式进行配置，这样即使应用冻结后再次启动配置信息依然存在。
-
-### 一键部署
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/songquanpeng/message-pusher)
+之后使用 Let's Encrypt 的 certbot 配置 HTTPS：
+```bash
+# Ubuntu 安装 certbot：
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+# 生成证书 & 修改 Nginx 配置
+sudo certbot --nginx
+# 根据指示进行操作
+# 重启 Nginx
+sudo service nginx restart
+```
 
 ### 手动部署
-1. Fork 本项目。
-2. 在[此处](https://dashboard.heroku.com/new-app)新建一个 Heroku APP，名字随意，之后可以设置自己的域名。
-3. 在 Deployment method 处，选择 Connect to Github，输入 message-pusher 搜索本项目，之后点击 Connect，之后启用自动部署（Enable Automatic Deploys）。 
-4. 点击上方的 Setting 标签，找到下面的 Config Vars 配置环境变量，有以下环境变量需要配置。
+1. 从 [GitHub Releases](https://github.com/songquanpeng/message-pusher/releases/latest) 下载可执行文件或者从源码编译：
+   ```shell
+   git clone https://github.com/songquanpeng/message-pusher.git
+   cd message-pusher/web
+   npm install
+   npm run build
+   cd ..
+   go mod download
+   go build -ldflags "-s -w" -o message-pusher
+   ````
+2. 运行：
+   ```shell
+   chmod u+x message-pusher
+   ./message-pusher --port 3000 --log-dir ./logs
+   ```
+3. 访问 [http://localhost:3000/](http://localhost:3000/) 并登录。初始账号用户名为 `root`，密码为 `123456`。
 
-|KEY|VALUE|
-|:--|:--|
-|MODE|1（1 代表 Heroku 模式，该模式下应用从环境变量中读取必要信息）|
-|PREFIX|你的前缀，如 admin（前缀用于区分用户，出现在请求的 api 路径中）|
-|DEFAULT_METHOD|默认推送方式（test 代表微信测试号，corp 代表微信企业号，email 代表邮件推送，client 代表客户端推送）|
-|HREF|服务的 href，如 https://wechat-message.herokuapp.com/ ，注意后面要有 /|
-|ACCESS_TOKEN|用于验证调用者身份，防止别人使用借口发送垃圾信息，置空则不进行检查，设置该值后则需要在调用时加上 token 字段|
-|WECHAT_APP_ID|你的测试号的 APP ID|
-|WECHAT_APP_SECRET|你的测试号的 APP Secret|
-|WECHAT_TEMPLATE_ID|你的测试号的模板消息的 ID|
-|WECHAT_OPEN_ID|你的 Open ID|
-|WECHAT_VERIFY_TOKEN|你自己设置的验证 token|
-|EMAIL|你的默认目标邮箱|
-|SMTP_SERVER|smtp 服务器地址，如 smtp.qq.com|
-|SMTP_USER|smtp 服务器用户邮箱|
-|SMTP_PASS|smtp 服务器用户凭据|
-|CORP_ID|微信企业号 ID|
-|CORP_AGENT_ID|微信企业号应用 ID|
-|CORP_APP_SECRET|微信企业号应用 Secret|
-|CORP_USER_ID|微信企业号用户 ID|
+如果服务需要长久运行，只是单纯地启动是不够的，[详细部署教程](https://iamazing.cn/page/how-to-deploy-a-website)。
 
-## 发送消息的方式
-1. 发送纯文本消息：直接 HTTP GET 请求 `https://你的域名/你的前缀/消息`，缺点是有字数限制，且只能是纯文本，这是微信消息的限制。
-2. 发送 Markdown 消息，调用方式分为两种：
-    + GET 请求方式：`https://你的域名/前缀/?&title=消息标题&description=简短的消息描述&content=markdown格式的消息内容&email=test@qq.com&token=private`
-    + POST 请求方式：请求路径为 `https://你的域名/前缀/`，参数有：
-        1. `type`：（可选）发送方式
-            + `test`：通过微信公众号测试号推送
-            + `email`：通过发送邮件的方式进行推送
-            + `corp`：通过微信企业号的应用号推送
-            + `client`：通过桌面客户端推送
-        2. `title`：（可选）消息的标题
-        3. `description`：（必填）消息的描述
-        4. `content`：（可选）消息内容，支持 Markdown
-        5. `email`：（可选）当该项不为空时，将强制覆盖 type 参数，强制消息类型为邮件消息，收件邮箱即此处指定的邮箱。如果 type 为 `email` 且 email 参数为空，则邮件将发送至用户设置的默认邮箱。
-        6. `token`:（可选）如果你设置了 ACCESS_TOKEN，则你需要附上该参数以验证身份。
+### 注意
+如果需要使用 WebSocket 客户端推送功能，则 Nginx 的配置文件中 `proxy_read_timeout` 和 `proxy_send_timeout` 务必设置超过 1 分钟。
 
-## 示例程序
+推荐设置：
+```
+proxy_read_timeout 300s;
+proxy_send_timeout 300s;   
+```
+
+## 配置
+系统本身仅需要下载一个可执行文件即可开始使用，无其他依赖。
+
+你可以通过设置环境变量或者命令行参数进行配置。
+
+等到系统启动后，使用 `root` 用户登录系统并做进一步的配置，默认密码为 `123456`。
+
+### 环境变量
+1. `REDIS_CONN_STRING`：设置之后将使用 Redis 作为请求频率限制的存储，而非使用内存存储。
+    + 例子：`REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
+2. `SESSION_SECRET`：设置之后将使用固定的会话密钥，这样系统重新启动后已登录用户的 cookie 将依旧有效。
+    + 例子：`SESSION_SECRET=random_string`
+3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite。
+    + 例子：`SQL_DSN=root:123456@tcp(localhost:3306)/message-pusher`
+
+注意：使用 Docker 部署时，请使用 `-e key=value` 设置环境变量。 
+
+例子：`docker run -e SESSION_SECRET=random_string ...`
+
+### 命令行参数
+1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。
+    + 例子：`--port 3000`
+2. `--log-dir <log_dir>`: 指定日志文件夹，如果没有设置，日志将不会被保存。
+    + 例子：`--log-dir ./logs`
+3. `--version`: 打印系统版本号并退出。
+
+
+### 进一步的配置
+1. 系统设置：
+   1. 填写服务器地址。
+   2. 配置登录注册选项，如果系统不对外开放，请取消选择`允许新用户注册`。
+   3. 配置 SMTP 服务，可以使用 QQ 邮箱的 SMTP 服务。
+   4. 其他配置可选，请按照页面上的指示完成配置。
+2. 个人设置：
+   1. 点击`更新用户信息`更改默认用户名和密码。
+   2. 点击`绑定邮箱地址`绑定邮箱以启用邮件消息推送方式。
+3. 推送设置：
+   1. 设置`默认推送方式`，默认为通过邮件进行推送。
+   2. 设置`推送 token`，用以推送 API 调用鉴权，如果不需要留空即可。
+   3. 设置其他推送方式，按照页面上的指示即可，完成配置后点击对应的`测试`按钮即可测试配置是否成功。
+4. 其他设置：如果系统对外提供服务，本系统也提供了一定的个性化设置功能，你可以设置关于界面和页脚，以及发布公告。
+
+## 用法
+1. 消息推送 API URL：`https://<domain>/push/<username>`
+   + 将上面的 `<domain>` 以及 `<username>` 替换为真实值，例如：`https://push.mydomain.cn/push/admin`
+2. `GET` 请求方式：`https://<domain>/push/<username>?title=<标题>&description=<描述>&content=<Markdown 文本>&channel=<推送方式>&token=<推送 token>`
+   1. `title`：选填，受限于具体的消息推送方式，其可能被忽略。
+   2. `description`：必填，可以替换为 `desp`。
+   3. `content`：选填，受限于具体的消息推送方式，Markdown 语法的支持有所区别。
+   4. `channel`：选填，如果不填则系统使用你在后台设置的默认推送通道。注意，此处填的是消息通道的名称，而非类型。可选的推送通道类型有：
+      1. `email`：通过发送邮件的方式进行推送（使用 `title` 或 `description` 字段设置邮件主题，使用 `content` 字段设置正文，支持完整的 Markdown 语法）。
+      2. `test`：通过微信测试号进行推送（使用 `description` 字段设置模板消息内容，不支持 Markdown）。
+      3. `corp_app`：通过企业微信应用号进行推送（仅当使用企业微信 APP 时，如果设置了 `content` 字段，`title` 和 `description` 字段会被忽略；使用微信中的企业微信插件时正常）。
+      4. `lark_app`：通过飞书自建应用进行推送。
+      5. `corp`：通过企业微信群机器人推送（设置 `content` 字段则将渲染 Markdown 消息，支持 Markdown 的子集；设置 `description` 字段则为普通文本消息）。
+      6. `lark`：通过飞书群机器人进行推送（注意事项同上）。
+      7. `ding`：通过钉钉群机器人进行推送（注意事项同上）。
+      8. `bark`：通过 Bark 进行推送（支持 `title` 和 `description` 字段）。
+      9. `client`：通过 WebSocket 客户端进行推送（支持 `title` 和 `description` 字段）。
+      10. `telegram`：通过 Telegram 机器人进行推送（`description` 或 `content` 字段二选一，支持 Markdown 的子集）。
+      11. `discord`：通过 Discord 群机器人进行推送（注意事项同上）。
+      12. `one_api`：通过 OneAPI 协议推送消息到 QQ。
+      13. `group`：通过预先配置的消息推送通道群组进行推送。
+      14. `custom`：通过预先配置好的自定义推送通道进行推送。
+      15. `tencent_alarm`：通过腾讯云监控告警进行推送，仅支持 `description` 字段。
+      16. `none`：仅保存到数据库，不做推送。
+   5. `token`：如果你在后台设置了推送 token，则此项必填。另外可以通过设置 HTTP `Authorization` 头部设置此项。
+      * 注意令牌有两种，一种是全局鉴权令牌，一种是通道维度的令牌，前者可以鉴权任何通道，后者只能鉴权指定通道。
+   6. `url`：选填，如果不填则系统自动为消息生成 URL，其内容为消息详情。
+   7. `to`：选填，推送给指定用户，如果不填则默认推送给自己，受限于具体的消息推送方式，有些推送方式不支持此项。
+      1. `@all`：推送给所有用户。
+      2. `user1|user2|user3`：推送给多个用户，用户之间使用 `|` 分隔。
+   8. `async`：选填，如果设置为 `true` 则消息推送将在后台异步进行，返回结果包含 `uuid` 字段，可用于后续[获取消息发送状态](./docs/API.md#通过消息 UUID 获取消息发送状态)。
+   9. `render_mode`：选填，
+      1. 如果设置为 `code`，则消息体会被自动嵌套在代码块中进行渲染；
+      2. 如果设置为 `raw`，则不进行 Markdown 解析；
+      3. 默认 `markdown`，即进行 Markdown 解析。
+3. `POST` 请求方式：字段与上面 `GET` 请求方式保持一致。
+   + 如果发送的是 JSON，HTTP Header `Content-Type` 请务必设置为 `application/json`，否则一律按 Form 处理。
+   + POST 请求方式下的 `token` 字段也可以通过 URL 查询参数进行设置。
+
+
+**各种通道的支持程度：**
+
+|      通道类型       | `title` | `description` | `content` | `url` | `to` | Markdown 支持 |
+|:---------------:|:-------:|:-------------:|:---------:|:-----:|:----:|:-----------:|
+|     `email`     |    ✅    |       ✅       |     ✅     |   ❌   |  ✅️  |     ✅️      |
+|     `test`      |    ✅    |       ✅       |     ✅     |  ✅️   |  ✅️  |      ✅      |
+|   `corp_app`    |    ✅    |       ✅       |     ✅     |  ✅️   |  ✅   |      ✅      |
+|     `corp`      |    ❌    |       ✅       |     ✅     |  ✅️   |  ✅️  |      ✅      |
+|     `lark`      |    ❌    |       ✅       |     ✅     |   ❌   |  ✅   |      ✅      |
+|   `lark_app`    |    ❌    |       ✅       |     ✅     |  ❌️   |  ✅   |      ✅      |
+|     `ding`      |    ✅    |       ✅       |     ✅     |  ✅️   |  ✅   |      ✅      |
+|     `bark`      |    ✅    |       ✅       |     ✅     |  ✅️   |  ❌   |      ✅      |
+|    `client`     |    ✅    |       ✅       |     ❌     |   ❌   |  ❌   |      ❌      |
+|   `telegram`    |    ❌    |       ❌       |     ✅     |   ❌   |  ✅   |      ✅      |
+|    `discord`    |    ❌    |       ❌       |     ✅     |   ❌   |  ✅   |      ❌      |
+| `tencent_alarm` |    ❌    |       ✅       |     ❌     |   ❌   |  ❌   |      ❌      |
+
+注意：
+1. 对于大部分通道，`description` 字段和 `content` 是不能同时存在的，如果你只需要文字消息，请使用 `description` 字段，如果你需要发送 Markdown 消息，请使用 `content` 字段。
+2. 部分通道的 Markdown 支持实际上是通过 URL 跳转到本系统所渲染的消息详情实现的，其他通道的 Markdown 支持受限于具体的通道，支持的语法并不统一。
+
+**示例：**
+
+<details>
+<summary><strong>Bash 示例 </strong></summary>
+<div>
+
+```shell
+#!/bin/bash
+
+MESSAGE_PUSHER_SERVER="https://msgpusher.com"
+MESSAGE_PUSHER_USERNAME="test"
+MESSAGE_PUSHER_TOKEN="666"
+
+function send_message {
+  # POST Form
+  curl -s -X POST "$MESSAGE_PUSHER_SERVER/push/$MESSAGE_PUSHER_USERNAME" \
+    -d "title=$1&description=$2&content=$3&token=$MESSAGE_PUSHER_TOKEN" \
+    >/dev/null
+}
+
+function send_message_with_json {
+  # POST JSON
+  curl -s -X POST "$MESSAGE_PUSHER_SERVER/push/$MESSAGE_PUSHER_USERNAME" \
+    -H 'Content-Type: application/json' \
+    -d '{"title":"'"$1"'","desp":"'"$2"'", "content":"'"$3"'", "token":"'"$MESSAGE_PUSHER_TOKEN"'"}' \
+    >/dev/null
+}
+
+send_message 'title' 'description' 'content'
+```
+
+另一个版本：
+```shell
+MESSAGE_PUSHER_SERVER="https://msgpusher.com"
+MESSAGE_PUSHER_USERNAME="test"
+MESSAGE_PUSHER_TOKEN="666"
+MESSAGE_PUSHER_CHANNEL="lark"
+
+sendmsg() {
+    if [ -t 0 ]; then
+        local param="$*"
+    else
+        local param=$(</dev/stdin)
+    fi
+    curl -s -o /dev/null --get --data-urlencode "content=${param}" "$MESSAGE_PUSHER_SERVER/push/$MESSAGE_PUSHER_USERNAME?channel=$MESSAGE_PUSHER_CHANNEL&token=$MESSAGE_PUSHER_TOKEN"
+}
+```
+
+之后便可以进行这样的操作：
+```shell
+uname -ra | sendmsg
+```
+
+</div>
+</details>
+
+<details>
+<summary><strong>Python 示例 </strong></summary>
+<div>
+
 ```python
 import requests
 
-# GET 方式
-res = requests.get("https://push.iamazing.cn/admin/?title={}&description={}&token={}".format("标题", "描述", "666"))
+SERVER = "https://msgpusher.com"
+USERNAME = "test"
+TOKEN = "666"
 
-# POST 方式
-res = requests.post("https://your.domain.com/prefix/", data={
-    "title": "标题",
-    "description" : "描述",
-    "content": "**Markdown 内容**",
-    "token": "6666"
-})
 
-print(res.text)
-# 输出为：{"success":true,"message":"ok"}
+def send_message(title, description, content):
+    # GET 方式
+    # res = requests.get(f"{SERVER}/push/{USERNAME}?title={title}"
+    #                    f"&description={description}&content={content}&token={TOKEN}")
+
+    # POST 方式
+    res = requests.post(f"{SERVER}/push/{USERNAME}", json={
+        "title": title,
+        "description": description,
+        "content": content,
+        "token": TOKEN
+    })
+    res = res.json()
+    if res["success"]:
+        return None
+    else:
+        return res["message"]
+
+
+error = send_message("标题", "描述", "**Markdown 内容**")
+if error:
+    print(error)
 ```
 
-## 待做清单
-- [x] 支持多用户。
-- [ ] 完善的用户管理。
-- [x] 支持 Markdown。
-- [x] 支持推送消息到邮箱。
-- [x] 支持在 Heroku 上部署。
-- [x] 更加便于部署的 [Go 语言版本](https://github.com/LeeJiangWei/go-message)。
-- [x] 适配企业微信应用。
-- [x] 客户端推送。
+</div>
+</details>
 
-敬请期待。
+<details>
+<summary><strong>Go 示例 </strong></summary>
+<div>
+
+```go
+package main
+
+import (
+   "bytes"
+   "encoding/json"
+   "errors"
+   "fmt"
+   "net/http"
+   "net/url"
+)
+
+var serverAddress = "https://msgpusher.com"
+var username = "test"
+var token = "666"
+
+type request struct {
+   Title       string `json:"title"`
+   Description string `json:"description"`
+   Content     string `json:"content"`
+   URL         string `json:"url"`
+   Channel     string `json:"channel"`
+   Token       string `json:"token"`
+}
+
+type response struct {
+   Success bool   `json:"success"`
+   Message string `json:"message"`
+}
+
+func SendMessage(title string, description string, content string) error {
+   req := request{
+      Title:       title,
+      Description: description,
+      Content:     content,
+      Token:       token,
+   }
+   data, err := json.Marshal(req)
+   if err != nil {
+      return err
+   }
+   resp, err := http.Post(fmt.Sprintf("%s/push/%s", serverAddress, username),
+      "application/json", bytes.NewBuffer(data))
+   if err != nil {
+      return err
+   }
+   var res response
+   err = json.NewDecoder(resp.Body).Decode(&res)
+   if err != nil {
+      return err
+   }
+   if !res.Success {
+      return errors.New(res.Message)
+   }
+   return nil
+}
+
+func SendMessageWithForm(title string, description string, content string) error {
+   resp, err := http.PostForm(fmt.Sprintf("%s/push/%s", serverAddress, username),
+      url.Values{"title": {title}, "description": {description}, "content": {content}, "token": {token}})
+   if err != nil {
+      return err
+   }
+   var res response
+   err = json.NewDecoder(resp.Body).Decode(&res)
+   if err != nil {
+      return err
+   }
+   if !res.Success {
+      return errors.New(res.Message)
+   }
+   return nil
+}
+
+func main() {
+   //err := SendMessage("标题", "描述", "**Markdown 内容**")
+   err := SendMessageWithForm("标题", "描述", "**Markdown 内容**")
+   if err != nil {
+      fmt.Println("推送失败：" + err.Error())
+   } else {
+      fmt.Println("推送成功！")
+   }
+}
+```
+
+</div>
+</details>
+
+<details>
+<summary><strong>C# 示例 </strong></summary>
+<div>
+
+```csharp
+using Newtonsoft.Json;
+using RestSharp;
+
+namespace Demo
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            //推送消息
+            var sendMsg = MessagePusherTool.SendMessage("标题", "描述", "**Markdown 内容**");
+            if(sendMsg.Success)
+            {
+                Console.WriteLine($"推送成功！");
+            }
+            else
+            {
+                Console.WriteLine($"推送失败：{sendMsg.Message}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// 消息推送工具
+    /// 
+    /// <para>开源地址：https://github.com/songquanpeng/message-pusher</para>
+    /// <para>支持：Framework、Net3.1、Net5、Net6</para>
+    /// <para>引用包：</para>
+    /// <para>dotnet add package Newtonsoft.Json -v 13.0.2</para>
+    /// <para>dotnet add package RestSharp -v 108.0.3</para>
+    /// </summary>
+    public class MessagePusherTool
+    {
+        /// <summary>
+        /// ServerAddress
+        /// </summary>
+        public const string ServerAddress = "https://msgpusher.com";
+
+        /// <summary>
+        /// UserName
+        /// </summary>
+        public const string UserName = "test";
+
+        /// <summary>
+        /// Token
+        /// </summary>
+        public const string Token = "666";
+
+        /// <summary>
+        /// SendMessage
+        /// </summary>
+        /// <param name="title">title</param>
+        /// <param name="description">description</param>
+        /// <param name="content">content</param>
+        public static Response SendMessage(string title, string description, string content)
+        {
+            var requestData = new Request()
+            {
+                Title = title,
+                Description = description,
+                Content = content,
+                Token = Token,
+            };
+            var url = $"{ServerAddress}";
+            var client = new RestClient(url);
+            var request = new RestRequest($"push/{UserName}", Method.Post);
+            request.AddJsonBody(requestData);
+            var response = client.Execute(request);
+            var responseData = response.Content;
+            var responseJson = JsonConvert.DeserializeObject<Response>(responseData);
+            return responseJson;
+        }
+
+        /// <summary>
+        /// Request
+        /// </summary>
+        public class Request
+        {
+            /// <summary>
+            /// Title
+            /// </summary>
+            [JsonProperty(PropertyName = "title")]
+            public string Title { get; set; }
+
+            /// <summary>
+            /// Description
+            /// </summary>
+            [JsonProperty(PropertyName = "description")]
+            public string Description { get; set; }
+
+            /// <summary>
+            /// Content
+            /// </summary>
+            [JsonProperty(PropertyName = "content")]
+            public string Content { get; set; }
+
+            /// <summary>
+            /// URL
+            /// </summary>
+            [JsonProperty(PropertyName = "url")]
+            public string URL { get; set; }
+
+            /// <summary>
+            /// Channel
+            /// </summary>
+            [JsonProperty(PropertyName = "channel")]
+            public string Channel { get; set; }
+
+            /// <summary>
+            /// Token
+            /// </summary>
+            [JsonProperty(PropertyName = "token")]
+            public string Token { get; set; }
+        }
+
+        /// <summary>
+        /// Response
+        /// </summary>
+        public class Response
+        {
+            /// <summary>
+            /// Success
+            /// </summary>
+            [JsonProperty(PropertyName = "success")]
+            public bool Success { get; set; }
+
+            /// <summary>
+            /// Message
+            /// </summary>
+            [JsonProperty(PropertyName = "message")]
+            public string Message { get; set; }
+        }
+    }
+}
+```
+
+</div>
+</details>
+
+<details>
+<summary><strong>Node.js 示例 </strong></summary>
+<div>
+
+```javascript
+const axios = require('axios');
+const querystring = require('querystring');
+
+const MESSAGE_PUSHER_SERVER = 'https://msgpusher.com'
+const MESSAGE_PUSHER_USERNAME = 'test'
+const MESSAGE_PUSHER_TOKEN = '666'
+
+async function send_message(title, description, content) {
+  try {
+    const postData = querystring.stringify({
+      title: title,
+      desp: description,
+      content: content,
+      token: MESSAGE_PUSHER_TOKEN,
+    })
+
+    const response = await axios.post(`${MESSAGE_PUSHER_SERVER}/push/${MESSAGE_PUSHER_USERNAME}`, postData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+    if (response.data.success) {
+      return response.data
+    }
+  } catch (error) {
+    if (error.response) {
+      return error.response.data
+    } else {
+      throw error
+    }
+
+  }
+}
+
+send_message('标题', '描述', '**Markdown 内容**')
+  .then((response) => {
+    if (response.success) {
+      console.log('推送成功:', response)
+    } else {
+      console.log('推送失败:', response)
+    }
+  }, (error) => {
+    console.log(error.message);
+  })
+
+```
+</div>
+</details>
+
+欢迎 PR 添加更多语言的示例。
+
+
+## 迁移数据库
+此处均以 SQLite 为例，其他数据库请自行修改。我已经让 ChatGPT 翻译成对应的 SQL 版本，见 `bin` 文件夹，供参考。
+
+### 从 `v0.3` 迁移到 `v0.4`
+1. 首先备份你的数据库文件。
+2. 下载最新的 `v0.4` 版本，启动程序，程序会自动进行数据库表结构的迁移。
+3. 终止程序。
+4. 之后执行脚本：`./bin/migrate_v3_to_v4.py`，进行数据的迁移。
+5. 重新启动程序即可。
+
+注意，执行前请确保数据库中 `users` 表中字段的顺序和脚本中的一致，否则会出现数据错乱的情况。
+
+## 其他
+1. `v0.3` 之前的版本基于 Node.js，你可以切换到 [`nodejs`](https://github.com/songquanpeng/message-pusher/tree/nodejs) 分支查看，该版本不再有功能性更新。
+2. `v0.3` 以及后续版本基于 Gin Template [`v0.2.1`](https://github.com/songquanpeng/gin-template) 版本开发。
+3. 如果想要自行编译，请首先[编译前端](./web/README.md)，之后再编译后端，否则会遇到 `pattern web/build: no matching files found` 问题。
